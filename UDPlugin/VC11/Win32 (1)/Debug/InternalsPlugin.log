@@ -1,0 +1,4 @@
+﻿  DataPlugin.cpp
+DataPlugin.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' specification
+     Creating library Win32\Debug\InternalsPlugin.lib and object Win32\Debug\InternalsPlugin.exp
+  InternalsPlugin.vcxproj -> C:\Users\Mathew\Desktop\start-from-scratch UDP\UDPlugin\VC11\Win32\Debug\InternalsPlugin.dll

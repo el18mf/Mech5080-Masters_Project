@@ -1,0 +1,15 @@
+﻿Build started 10/04/2024 09:45:16.
+     1>Project "C:\Users\Mathew\Desktop\all mech5080 plugin stuff\Final Software\UDPlugin_and_Receiver\UDPlugin\VC11\UDPlugin.vcxproj" on node 2 (Rebuild target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\CL.exe /c /I..\include /Zi /nologo /W3 /WX- /O2 /Ob1 /D WIN32 /D NDEBUG /D _WINDOWS /D _USRDLL /D INTERNALSPLUGIN_EXPORTS /D _CRT_SECURE_NO_DEPRECATE /D _VC80_UPGRADE=0x0600 /D _WINDLL /D _MBCS /GF /Gm- /EHsc /MD /GS /Gy /fp:fast /Zc:wchar_t /Zc:forScope /Fo"x64\Release\\" /Fd"x64\Release\vc110.pdb" /Gd /TP /errorReport:prompt ..\Source\UDPlugin.cpp
+         UDPlugin.cpp
+     1>..\Source\UDPlugin.cpp(341): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"x64\Release\UDPlugin.dll" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib Ws2_32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST:NO /PDB:"x64\Release\InternalsPlugin.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"x64\Release\InternalsPlugin.lib" /MACHINE:X64 /DLL x64\Release\UDPlugin.obj
+            Creating library x64\Release\InternalsPlugin.lib and object x64\Release\InternalsPlugin.exp
+         UDPlugin.vcxproj -> C:\Users\Mathew\Desktop\all mech5080 plugin stuff\Final Software\UDPlugin_and_Receiver\UDPlugin\VC11\x64\Release\UDPlugin.dll
+     1>Done Building Project "C:\Users\Mathew\Desktop\all mech5080 plugin stuff\Final Software\UDPlugin_and_Receiver\UDPlugin\VC11\UDPlugin.vcxproj" (Rebuild target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:01.26
