@@ -10,9 +10,9 @@
 ║ Description  ║ the physical hardware in order to faciliate actuation. Created for Master's dissertation.       ║
 ║              ║ Sends Data Packages with order described in accompanying excel file via UDP port 10815.         ║
 ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════════╣
-║              ║ V1) File: rFactor 2 Output -> .csv file -> Arduino (alex Code) -> Actuation (Too high Latency). ║
+║              ║ V1) File: rFactor 2 Output -> .csv file -> Arduino (Alex Code) -> Actuation (Too high Latency). ║
 ║    Plugin    ║ V2) Memory Buffer: Stored data in the memory buffer then accessed by arduino (missing data).    ║
-║   Versions   ║ V3) TCP/UDP V1: Send data via TCP/UDP port (Detected as Intrusive by game/caused crashing.      ║
+║   Versions   ║ V3) TCP/UDP V1: Send data via TCP/UDP port (Detected as Intrusive by game/caused crashing).     ║
 ║              ║ V4) UDP V2: Aided in work-around by <redacted>* - Current Version.                              ║
 ║              ║ *Asked to keep said person & work-around anonymous to prevent proliferation of said work-around.║
 ╠══════════════╩═════════════════════════════════════════════════════════════════════════════════════════════════╣
@@ -20,27 +20,38 @@
 ║ the Example Plugin V8 for rFactor2, made available by Studio 397 in the form of a zip file within their forums.║
 ║        Download found in modding resources section here: https://www.studio-397.com/modding-resources/         ║
 ║            PROPRIETARY AND CONFIDENTIAL -  Copyright (c) 2018 Studio 397 B.V.  All rights reserved.            ║
+║                                                   ╔═══════╗                                                    ║
+╠═══════════════════════════════════════════════════╝ Notes ╚════════════════════════════════════════════════════╣
 ║                                                                                                                ║
-╠════════════════════════════════════════════════════ Notes ═════════════════════════════════════════════════════╣
+║	-	Tab Size:	4 | Plugin Language: C++ | Sends Data to C# Program | Data via UDP: Sent as ascii hexcode    ║
 ║                                                                                                                ║
-║  - Formatting: | Max Column - 114 | ===== Title ===== | _____Section_Split_____ |                              ║
+║	-	Formatting:	| Max Column - 114 | ═════ Title ═════ | _____Section_Split_____                             ║
 ║                                                                                                                ║
-║  - Commenting: | If fits in 114 column max // on same line | If too long, // across multiple lines before |    ║
+║	-	Commenting:	| If fits in 114 column max // on same line | If too long, /* across multiple lines before   ║
 ║                                                                                                                ║
-║  - ctrl + / =  Visual Studio Code shortcut to comment selected line/s, eases                                   ║
-║                enabling and disabling of features.                                                             ║
+║	-	"ctrl + /":	Visual Studio Code shortcut to comment selected line/s, eases enabling and disabling of      ║
+║					features.                                                                                    ║
 ║                                                                                                                ║
-║  - Use of Visual Studio Express 2012 (free via microsoft coding insider programmer) used to compile, but       ║
-║    compiling possibly through Visual Studio Code via Bash terminal using:                                      ║
+║	-	Compiling:	Use of Visual Studio Express 2012 (free via microsoft coding insider programmer) used to     ║
+║					compile, but compiling possibly through Visual Studio Code via Bash terminal using (check if ║
+║                   plugin compiles/error testing):  															 ║
 ║                                                                                                                ║
-║    1)  g++ -c -fPIC file.cpp -o file.o         //  Created object file that can be converted to a .dll         ║
+║		1)	g++ -c -fPIC file.cpp -o file.o			//  Created object file that can be converted to a .dll      ║
 ║                                                                                                                ║
-║    2a) g++ -shared -o file.dll file.o          //  Compilation of Object file into a .dll                      ║
-║        g++ -shared -o file.dll file.o -lWs2_32 //  Missing Library Error Fix: Winsock library Manual link (UDP)║
+║		2a)	g++ -shared -o file.dll file.o			//  Compilation of Object file into a .dll                   ║
+║			g++ -shared -o file.dll file.o -lWs2_32	//  Missing Library: Winsock library Manual link (UDP)	     ║
 ║                                                                                                                ║
-║  - Compiling done using Visual Studio Express 2012 which is free via Visual Studio Dev Essentials service      ║
+║	- 	Compiling done using Visual Studio Express 2012 which is free via Visual Studio Dev Essentials service:  ║
+║	                                                                                                             ║
+║		1)	                                                                                                     ║
 ║                                                                                                                ║
-╠════════════════════════════════════════════════════ ASCII ═════════════════════════════════════════════════════╣
+║		2)	                                                                                                     ║
+║	                                                                                                             ║
+║		3)	                                                                                                     ║
+║	                                                                                                             ║
+║		4)	                                                                                                     ║
+║                                                   ╔═══════╗                                                    ║
+╠═══════════════════════════════════════════════════╝ ASCII ╚════════════════════════════════════════════════════╣
 ║                                                                                                                ║
 ║                 ┌───────────┬─────────────┬───────────┬───────────┬─────────────┬───────────┐                  ║
 ║                 │   Type    |  alt + No.  │  Symbol   │   Type    |  alt + No.  │  Symbol   │                  ║
@@ -63,22 +74,24 @@
 ║                 │           │     197     │     ┼     │           │     205     │     ═     │                  ║
 ║                 │           │     200     │     ╚     │           │     206     │     ╬     │                  ║
 ║                 └───────────┴─────────────┴───────────┴───────────┴─────────────┴───────────┘                  ║
-║                                                                                                                ║
+║				Feel free to collapse the above welcome comment to make it easier to navigate file               ║
 ╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝*/
-//▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▓■ ●ஜ۩۞۩ஜ● ■▓▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+//▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▓■ ●ஜ۩۞۩ஜ● ■▓▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
 
-#include <WinSock2.h>           // required library for UDP connection
+
+
+#include <WinSock2.h>			// required library for UDP connection
 #include <Windows.h>
 
-#include "UDPlugin.hpp"          // corresponding header file
+#include "UDPlugin.hpp"			// corresponding header file
 #include <math.h>               // for atan2, sqrt
-#include <stdio.h>              // for sample output
+#include <stdio.h>				// for sample output
 #include <assert.h>
 #include <io.h>
 #include <sys/stat.h>        
 #include <string.h>
 #include <sys/types.h>
-#include <time.h>               //  To get time for log & Output Files
+#include <time.h>				//  To get time for log & Output Files
 
 #include <WS2tcpip.h>
 
@@ -87,14 +100,15 @@
 // UDPlugin::UDPlugin(){}
 // UDPlugin::~UDPlugin(){}
 
-// plugin information
-extern "C" __declspec( dllexport )  // Sets Plugin Name
+//______________________________________________________________________________________________________________
+// plugin information.
+extern "C" __declspec( dllexport )  // Sets Plugin Name.
 const char * __cdecl GetPluginName()                   { return("UDPlugin - 2024.04.08"); } 
 
-extern "C" __declspec( dllexport )  // Plugin Object Type - See PluginObjects.hpp lines 30-41 for all types
+extern "C" __declspec( dllexport )  // Plugin Object Type - See PluginObjects.hpp lines 30-41 for all types.
 PluginObjectType __cdecl GetPluginType()               { return(PO_INTERNALS); }  
 
-extern "C" __declspec( dllexport )  // InternalsPluginV01 functionality if return value changed, you must derive   
+extern "C" __declspec( dllexport )  // InternalsPluginV01 functionality if return value changed, you must derive.   
 int __cdecl GetPluginVersion()                         { return(6); } // from the appropriate class (1-7)!   
                                                                         
 extern "C" __declspec( dllexport )
@@ -103,55 +117,55 @@ PluginObject * __cdecl CreatePluginObject()            { return( (PluginObject *
 extern "C" __declspec( dllexport )
 void __cdecl DestroyPluginObject( PluginObject *obj )  { delete( (UDPlugin *) obj ); }
 
-//════════════════════════════════════════════════════ My Code ═══════════════════════════════════════════════════
-//  look into adding using UDPlugin::functions in the class
-//  Also try using namespace UDPlugin;
-//═══════════════════════════════════════════════════ Functions ══════════════════════════════════════════════════
+/*______________________________________________________________________________________________________________
+════════════════════════════════════════════════════ My Code ═══════════════════════════════════════════════════
 
+═══════════════════════════════════════════════════ Functions ══════════════════════════════════════════════════*/
 
-/*╔══════════════╦══════════════╗
-  ║   Function   ║ WriteToFiles ║
-  ╠══════════════╬══════════════╩══════════════════════════════════════════════════════════════════════════════╗
-  ║ Description  ║ Writes timestamped message/data (Telemetry, Graphics, Scoring) to individual text files     ║
-  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════║
-  ║  Parameters  ║ openStr: Mode in which to open files ("w" for write, "a" for append, etc.)                  ║
-  ║              ║ msg: 	Contains the message to be written                                                 ║
-  ╚══════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
+/*______________________________________________________________________________________________________________
+╔══════════════╦══════════════╗
+║   Function   ║ WriteToFiles ║
+╠══════════════╬══════════════╩══════════════════════════════════════════════════════════════════════════════╗
+║ Description  ║ Writes timestamped message/data (Telemetry, Graphics, Scoring) to individual text files.    ║
+╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════╣
+║  Parameters  ║ openStr:	Mode in which to open files ("w" for write, "a" for append, etc.).               ║
+║              ║ msg:		Contains the message to be written.                                              ║
+╚══════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
 void UDPlugin::WriteToFiles( const char * const openStr, const char * const msg )
 {
 	
 	const char* TelemPath = "C:\\Users\\Mathew\\Desktop\\rF2_data_files\\Telemetry.txt";
 
-  FILE *TelemFile;             // Pointer to FILE object for file access
-  time_t curtime;                                           //  Variable to store the current time
-  struct tm loctime;                                       //  Pointer to tm structure for converting time
+  FILE *TelemFile;             							// Pointer to FILE object for file access.
+  time_t curtime;                                       //  Variable to store the current time.
+  struct tm loctime;                                    //  Pointer to tm structure for converting time.
   char thetime[TIME_LENGTH];
 
-  int telem = fopen_s(&TelemFile, TelemPath, openStr );  // Open "Telemetry.txt" with the mode specified by openStr
-  if(telem == 0)  {                            // Check if the file was successfully opened
-    curtime = time(NULL);                        // Get the current time
+  int telem = fopen_s(&TelemFile, TelemPath, openStr ); // Open 'Telemetry.txt', mode specified by openStr.
+  if(telem == 0)  {                            			// Check if the file was successfully opened.
+    curtime = time(NULL);                       		// Get the current time.
   int telem2 = localtime_s(&loctime, &curtime);
   int telem3 = asctime_s(thetime, TIME_LENGTH, &loctime);    
   thetime[TIME_LENGTH - 2] = 0;                          
       
-  fprintf(TelemFile, "[%s] %s\n", thetime, msg);            // Writes message to file with corresponding timestamp  
-  fclose(TelemFile);                                        // Close file to flush stream & release resources
+  fprintf(TelemFile, "[%s] %s\n", thetime, msg);        // Writes message to file with corresponding timestamp.  
+  fclose(TelemFile);                                    // Close file to flush stream & release resources.
   }
-  // // Uncomment to enable Graphics Output Data being written to a corresponding text file
+  // // Uncomment to enable Graphics Output Data being written to a corresponding text file.
   // fo = fopen( "GraphicsOutput.txt", openStr );
-  // if( fo != NULL )  {                            // Check if the file was successfully opened
-  //   curtime = time(NULL);                        // Get the current time
-	// 	loctime = localtime(&curtime);               // Convert current time to local time
+  // if( fo != NULL )  {                            // Check if the file was successfully opened.
+  //   curtime = time(NULL);                        // Get the current time.
+	// 	loctime = localtime(&curtime);               // Convert current time to local time.
     
-  //   fprintf( fo, "[%s] %s\n", asctime (loctime), msg);//Write the timestamped message to "TelemetryOutput.txt"  
-  //   fclose( fo );                                    //Close the file to flush the stream and release resources
+  // fprintf( fo, "[%s] %s\n", asctime (loctime), msg);//Write the timestamped message to "TelemetryOutput.txt".  
+  // fclose( fo );                                    //Close the file to flush the stream and release resources.
   // }
   
   // // Uncomment to enable Scoring Output Data being written to a corresponding text file
   // fo = fopen( "ScoringOutput.txt", openStr );
-  // if( fo != NULL )  {                            // Check if the file was successfully opened
-  //   curtime = time(NULL);                        // Get the current time
-	// 	loctime = localtime(&curtime);               // Convert current time to local time
+  // if( fo != NULL )  {                            // Check if the file was successfully opened.
+  //   curtime = time(NULL);                        // Get the current time.
+	// 	loctime = localtime(&curtime);               // Convert current time to local time.
     
   //   fprintf( fo, "[%s] %s\n", asctime (loctime), msg);// Write the timestamped message to "TelemetryOutput.txt"  
   //   fclose( fo );                                   // Close the file to flush the stream and release resources
@@ -161,13 +175,14 @@ void UDPlugin::WriteToFiles( const char * const openStr, const char * const msg 
 //  Mostly finished Code (not recording to log) and not comments
 
 
-/*╔══════════════╦═════╗
-  ║   Function   ║ log ║
-  ╠══════════════╬═════╩═══════════════════════════════════════════════════════════════════════════════════════╗
-  ║ Description  ║ Logs timestamped message/data to an individual .log file.                                   ║
-  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════║
-  ║  Parameters  ║ msg: Contains the message to be written                                                     ║
-  ╚══════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
+/*______________________________________________________________________________________________________________
+╔══════════════╦═════╗
+║   Function   ║ log ║
+╠══════════════╬═════╩═══════════════════════════════════════════════════════════════════════════════════════╗
+║ Description  ║ Logs timestamped message/data to an individual .log file.                                   ║
+╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════╣
+║  Parameters  ║ msg: Contains the message to be written.                                                    ║
+╚══════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
 void UDPlugin::log(const char *msg) {          
     // Define the full path for the log file - Change to suit needs
     // const char* logPath = "C:\\Users\\Mathew\\Desktop\\rF2_data_files\\UDPlugin.log";
@@ -192,14 +207,15 @@ fprintf(logFile, "[%s] %s\n", thetime, msg);                  // Writes message 
 }
 //  Mostly finished Code and incomplete comments
 
-/*╔══════════════╦═════════╗
-  ║   Function   ║ Startup ║
-  ╠══════════════╬═════════╩═══════════════════════════════════════════════════════════════════════════════════╗
-  ║ Description  ║ Initiates the plugin, acquired server settings file if applicable, then connects to the     ║
-  ║              ║ the socket with either the given settings or default settings.                              ║
-  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════║
-  ║  Parameters  ║ version:                                                                                    ║
-  ╚══════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
+/*______________________________________________________________________________________________________________
+╔══════════════╦═════════╗
+║   Function   ║ Startup ║
+╠══════════════╬═════════╩═══════════════════════════════════════════════════════════════════════════════════╗
+║ Description  ║ Initiates the plugin, acquired server settings file if applicable, then connects to the     ║
+║              ║ the socket with either the given settings or default settings.                              ║
+╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════╣
+║  Parameters  ║ version:                                                                                    ║
+╚══════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
 void UDPlugin::Startup(long version) 
 { 
   //  Change directory to relevant location if .ini has been created
@@ -264,11 +280,12 @@ void UDPlugin::Startup(long version)
 }
 //  Mostly finished Code and incomplete comments
 
-/*╔══════════════╦══════════╗
-  ║   Function   ║ Shutdown ║
-  ╠══════════════╬══════════╩══════════════════════════════════════════════════════════════════════════════════╗
-  ║ Description  ║ Closes the UDP socket and shuts down the plugin.                                            ║
-  ╚══════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
+/*______________________________________________________________________________________________________________
+╔══════════════╦══════════╗
+║   Function   ║ Shutdown ║
+╠══════════════╬══════════╩══════════════════════════════════════════════════════════════════════════════════╗
+║ Description  ║ Closes the UDP socket and shuts down the plugin.                                            ║
+╚══════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
 void UDPlugin::Shutdown() {
   if (s > 0) {                                  //  Checks to see if socket is active
     closesocket(s);                             //  If active, closes the socket
@@ -340,7 +357,7 @@ void UDPlugin::ExitRealtime()
   ║              ║                                                                                             ║
   ║ Description  ║                                                                                             ║
   ║              ║                                                                                             ║
-  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════║
+  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════╣
   ║  Parameters  ║ TelemInfoV01 &info:                                                                         ║
   ╚══════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
 void UDPlugin::UpdateTelemetry(const TelemInfoV01 &info) {
@@ -392,7 +409,7 @@ void UDPlugin::UpdateTelemetry(const TelemInfoV01 &info) {
   ║   Function   ║ UpdateTelemetry ║
   ╠══════════════╬═════════════════╩═══════════════════════════════════════════════════════════════════════════╗
   ║ Description  ║ Old approach to transmitting data via UDP protocal - Kept for posterity                     ║
-  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════║
+  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════╣
   ║  Parameters  ║                                                                                             ║
   ╚══════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/ /*
 void UDPlugin::UpdateTelemetry(const TelemInfoV01 &info) {
@@ -489,7 +506,7 @@ void UDPlugin::UpdateTelemetry(const TelemInfoV01 &info) {
   ║   Function   ║ Error ║
   ╠══════════════╬═══════╩═════════════════════════════════════════════════════════════════════════════════════╗
   ║ Description  ║ Logs any errors that occur into the .log file                                               ║
-  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════║
+  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════╣
   ║  Parameters  ║ msg: Contains the message to be written                                                     ║
   ╚══════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
 void UDPlugin::Error(const char * const msg)	{log(msg);}	//  adds error message to log file
@@ -500,7 +517,7 @@ void UDPlugin::Error(const char * const msg)	{log(msg);}	//  adds error message 
   ║              ║ Used with old UDP code - Kept for posterity                                                 ║
   ║ Description  ║                                                                                             ║
   ║              ║                                                                                             ║
-  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════║
+  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════╣
   ║  Parameters  ║ ScoringInfoV01 &info:                                                                       ║
   ╚══════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
 void UDPlugin::UpdateScoring(const ScoringInfoV01 &info) {
@@ -589,7 +606,7 @@ void UDPlugin::StartStream() {
   ║              ║ Used with old UDP code - Kept for posterity                                                 ║
   ║ Description  ║                                                                                             ║
   ║              ║                                                                                             ║
-  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════║
+  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════╣
   ║  Parameters  ║ *data_ptr:                                                                                  ║
   ║              ║ length:	                                                                                   ║
   ╚══════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
@@ -620,7 +637,7 @@ void UDPlugin::StreamData(char *data_ptr, int length) {
   ║              ║ Used with old UDP code - Kept for posterity                                                 ║
   ║ Description  ║                                                                                             ║
   ║              ║                                                                                             ║
-  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════║
+  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════╣
   ║  Parameters  ║ *data_ptr:                                                                                  ║
   ╚══════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
 void UDPlugin::StreamVarString(char *data_ptr) {
@@ -639,7 +656,7 @@ void UDPlugin::StreamVarString(char *data_ptr) {
   ║              ║ Used with old UDP code - Kept for posterity                                                 ║
   ║ Description  ║                                                                                             ║
   ║              ║                                                                                             ║
-  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════║
+  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════╣
   ║  Parameters  ║ *data_ptr:                                                                                  ║
   ║              ║ length:	                                                                                   ║
   ╚══════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
@@ -652,7 +669,7 @@ void UDPlugin::StreamString(char *data_ptr, int length) {
 			data_packet++;
 			data[0] = data_version;
 			data[1] = data_packet;
-			memcpy(&data[2], &data_sequence, sizeof(short));
+			memcpy(&data[2], &data_sequence, sizeof(short)); 
 			data_offset = 4;
 			length = length - i;
 			data_ptr += i;
@@ -689,7 +706,7 @@ void UDPlugin::EndStream() {
   ║              ║                                                                                             ║
   ║ Description  ║                                                                                             ║
   ║              ║                                                                                             ║
-  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════║
+  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════╣
   ║  Parameters  ║ controlName:                                                                                ║
   ║              ║ &fRetVal: 	                                                                               ║
   ╚══════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
@@ -702,7 +719,7 @@ bool UDPlugin::CheckHWControl( const char * const controlName, double &fRetVal )
   ║              ║                                                                                             ║
   ║ Description  ║                                                                                             ║
   ║              ║                                                                                             ║
-  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════║
+  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════╣
   ║  Parameters  ║ &forceValue:                                                                                ║
   ╚══════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
 bool UDPlugin::ForceFeedback( double &forceValue )
@@ -721,7 +738,7 @@ bool UDPlugin::ForceFeedback( double &forceValue )
   ║              ║                                                                                             ║
   ║ Description  ║                                                                                             ║
   ║              ║                                                                                             ║
-  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════║
+  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════╣
   ║  Parameters  ║ CommentaryRequestInfoV01 &info:                                                             ║
   ╚══════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
 bool UDPlugin::RequestCommentary( CommentaryRequestInfoV01 &info )
@@ -754,7 +771,7 @@ bool UDPlugin::RequestCommentary( CommentaryRequestInfoV01 &info )
   ║              ║                                                                                             ║
   ║ Description  ║                                                                                             ║
   ║              ║                                                                                             ║
-  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════║
+  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════╣
   ║  Parameters  ║ MessageInfoV01 &msgInfo:                                                                    ║
   ╚══════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
 bool UDPlugin::WantsToDisplayMessage(MessageInfoV01 &msgInfo) {return false;}
@@ -766,7 +783,7 @@ bool UDPlugin::WantsToDisplayMessage(MessageInfoV01 &msgInfo) {return false;}
   ║              ║                                                                                             ║
   ║ Description  ║                                                                                             ║
   ║              ║                                                                                             ║
-  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════║
+  ╠══════════════╬═════════════════════════════════════════════════════════════════════════════════════════════╣
   ║  Parameters  ║ CameraControlInfoV01 &camControl:                                                           ║
   ╚══════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
 unsigned char UDPlugin::WantsToViewVehicle(CameraControlInfoV01 &camControl) {return 0;}
