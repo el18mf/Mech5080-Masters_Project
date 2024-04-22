@@ -89,7 +89,7 @@ class UDPlugin : public InternalsPluginV06  // REMINDER: exported function GetPl
 	void StreamString(char *data_ptr, int length);
 	void StreamVarString(char *data_ptr);
 	void EndStream();
-	void log(const char *msg);
+	void log(const char * const openStr, const char *msg);
 
 	SOCKET s; // socket to send data to
 	struct sockaddr_in sad;

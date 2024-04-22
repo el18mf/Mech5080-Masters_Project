@@ -1,0 +1,9 @@
+﻿Build started 22/04/2024 02:57:54.
+     1>Project "C:\Users\Mathew\Workspace\UDPlugin_and_Receiver\UDPlugin\VC11\UDPlugin.vcxproj" on node 2 (Build target(s)).
+     1>Link:
+         UDPlugin.vcxproj -> C:\Users\Mathew\Workspace\UDPlugin_and_Receiver\UDPlugin\VC11\x64\Release\UDPlugin.dll
+     1>Done Building Project "C:\Users\Mathew\Workspace\UDPlugin_and_Receiver\UDPlugin\VC11\UDPlugin.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.04

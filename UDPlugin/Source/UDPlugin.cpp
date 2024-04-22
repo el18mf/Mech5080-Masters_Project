@@ -93,6 +93,8 @@
 #include <string.h>             // for string manipulation functions
 #include <sys/types.h>          // for data types used in system calls
 #include <time.h>               // for time-related functions, such as getting current time
+#include <cstring>				// For strlen
+#include <limits>				// For INT_MAX
 
 #include <WS2tcpip.h>           // additional library for TCP/IP functionality
 
@@ -186,7 +188,7 @@ void UDPlugin::WriteToFiles( const char * const openStr, const char * const msg 
 ╠═════════════╬═════════════════════════════════════════════════════════════════════════════════════════════╣
 ║  Parameters ║ msg: Contains the message to be written.                                                    ║
 ╚═════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
-void UDPlugin::log(const char *msg) {   
+void UDPlugin::log( const char * const openStr, const char *msg) {   
 
     // Define the full path for the log file - Change to suit needs
     // const char* logPath = "C:\\Users\\Mathew\\Desktop\\rF2_data_files\\UDPlugin.log";
@@ -197,7 +199,7 @@ void UDPlugin::log(const char *msg) {
     char thetime[TIME_LENGTH];								//	Buffer to hold formatted time string
 
     // Open the log file in append mode ("a"). If the file doesn't exist, it will be created.
-    int err = fopen_s(&logFile, "UDPlugin.log", "a");		//	Attempt to open or create log file    
+    int err = fopen_s(&logFile, "UDPlugin.log", openStr);		//	Attempt to open or create log file    
     if (err == 0) {											//  Check if the file was successfully opened
       curtime = time(NULL);									//  Get the current time
       int err2 = localtime_s(&loctime, &curtime);			//	Convert current time to local time
@@ -219,7 +221,7 @@ fprintf(logFile, "[%s] %s\n", thetime, msg);				//	Writes message to file with c
 ╠═════════════╬═════════════════════════════════════════════════════════════════════════════════════════════╣
 ║  Parameters ║ msg: Contains the message to be written                                                     ║
 ╚═════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
-void UDPlugin::Error(const char * const msg)	{log(msg);}	//  adds error message to log file
+void UDPlugin::Error(const char * const msg)	{log("a", msg);}	//  adds error message to log file
 
 //═════════════════════════════════════════════ Startup & Stages ═══════════════════════════════════════════════
 /*______________________________________________________________________________________________________________
@@ -250,44 +252,44 @@ void UDPlugin::Startup(long version)
 	char temp[90];							// Character array to store formatted startup message
 											// (below) Format startup message with version number
 	sprintf( temp, "--Starting Plugin-- (version %.3f)", (float) version / 1000.0f );	
-	WriteToFiles( "w", temp );				// Write startup message to output files
-	log("--Starting Plugin--" );			//  Records Startup into Log with timestamp 
+	WriteToFiles( "w", temp);				// Write startup message to output files
+	log("w", temp);							//  Records Startup into Log with timestamp 
 
 	// open socket
 	s = socket(PF_INET, SOCK_DGRAM, 0);					// Create datagram socket
 	if (s < 0) {
-		log("could not create datagram socket");		// Log error message if socket creation fails
+		log("a", "could not create datagram socket");		// Log error message if socket creation fails
 		return;
 	}
 
 	int err = fopen_s(&settings, SettingsPath, "r");	// Open settings file for reading
 	if (err == 0) {
 			
-			log("reading settings");	// Log message indicating settings file is being read
+			log("a", "reading settings");	// Log message indicating settings file is being read
 			
 			if (fscanf_s(settings, "%[^:]:%i", hostname, _countof(hostname), &port) != 2)	{
 				// Log error message if reading host and port from settings file fails
-				log("could not read host and port");
+				log("a", "could not read host and port");
 			}
 				
 			//ptrh = gethostbyname(hostname);	//  used with previous approach, kept for possible future use
 			
 			//	Log message indicating settings have been successfully read from file
-			log("settings read from file");
+			log("a", "settings read from file");
 			
 			int errcode = getaddrinfo(hostname, NULL, &hints, &pResult);	// Resolve host name to IP address
 
 			fclose(settings);		// Close settings file
 
-			log("hostname is:");				// Log hostname 1/2
-			log(hostname);						// Log hostname	2/2
-			log("port is:");					// Log port number
+			log("a", "hostname is:");				// Log hostname 1/2
+			log("a", hostname);						// Log hostname	2/2
+			log("a", "port is:");					// Log port number
 			sprintf_s(portstring, "%i", port);	// Convert port number to string
-			log(portstring);					// Log port number
+			log("a", portstring);					// Log port number
 	}
 	else	{
 			// Log message indicating default settings are being used
-			log("could not read settings, using defaults: localhost:10815");
+			log("a", "could not read settings, using defaults: localhost:10815");
 			
 			//  used with previous approach, kept for possible future use
 			//ptrh = gethostbyname("localhost");// Convert host name to equivalent IP address and copy to sad.  
@@ -325,7 +327,7 @@ void UDPlugin::Shutdown() {
   }
     
   WriteToFiles( "a", "--Shutting Down--" );		//  Writes Shutdown message to enabled output files
-  log("--Shutting Down--" );              		//  Records Shutdown into Log 
+  log("a", "--Shutting Down--" );              		//  Records Shutdown into Log 
 } 
 //  Finished Code & Comments
 
@@ -339,7 +341,7 @@ void UDPlugin::Shutdown() {
 void UDPlugin::StartSession()
 {
 	WriteToFiles( "a", "--START SESSION--" );	//  Writes Session Start message to enabled output files
-	log("--START SESSION--" );					//  Records Session Start into Log   
+	log("a", "--START SESSION--" );					//  Records Session Start into Log   
 }
 //  Finished Code & Comments
 
@@ -353,7 +355,7 @@ void UDPlugin::StartSession()
 void UDPlugin::EndSession()
 {
 	WriteToFiles( "a", "--END SESSION--" );	//  Writes Session End message to enabled output files
-	log("---END SESSION--" );				//  Records Session End into Log
+	log("a", "---END SESSION--" );				//  Records Session End into Log
 }
 //  Finished Code & Comments
 
@@ -369,7 +371,7 @@ void UDPlugin::EnterRealtime()
 	// start up timer every time we enter realtime
 	mET = 0.0f;								//  Reset elapsed time counter to 0 when entering real-time session
 	WriteToFiles( "a", "---ENTER REALTIME---" );//  Writes message to enabled output files when real-time entered
-	log("---ENTER REALTIME---" );			//  Records real-time session entry into Log
+	log("a", "---ENTER REALTIME---" );			//  Records real-time session entry into Log
 }
 //  Finished Code & Comments
 
@@ -384,7 +386,7 @@ void UDPlugin::ExitRealtime()
 {
 	mET = -1.0f;									//  RSet elapsed time counter to -1 when exiting real-time session
 	WriteToFiles( "a", "---EXIT REALTIME---" );		//  Writes real-time exit message to enabled output files
-	log("---EXIT REALTIME---" );					//  Records real-time session exit into Log
+	log("a", "---EXIT REALTIME---" );					//  Records real-time session exit into Log
 }
 //  Finished Code & Comments
 
@@ -400,7 +402,7 @@ void UDPlugin::ExitRealtime()
 ╚═════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
 void UDPlugin::UpdateTelemetry(const TelemInfoV01 &info) {
 	
-	log("starting telemetry\n"); // Records Telemetry start into Log
+	log("a", "starting telemetry\n"); // Records Telemetry start into Log
 
 	// =====================================================================================================================
 	// Declare a buffer to store telemetry data to be sent
@@ -465,9 +467,9 @@ void UDPlugin::UpdateTelemetry(const TelemInfoV01 &info) {
 		- mLocalAccel.z;				//	Surge acceleration - Relates to longitudinal movement, generally along the x-axis.
 
 	*/
-	// 	Format telemetry data into a string buffer
-	sprintf(buffer, "%.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f\r\n", roll * radsToDeg,  pitch * radsToDeg, info.mLocalAccel.y, yaw * radsToDeg, - info.mLocalAccel.x, - info.mLocalAccel.z, info.mUnfilteredThrottle, info.mUnfilteredBrake, info.mUnfilteredSteering, info.mUnfilteredClutch, info.mSteeringShaftTorque,   info.mRotation);
-	//                                                      										  |     1. Roll     |     2. Pitch      |    3. HeaveAcc    |      4. Yaw    |       5. SwayAcc    |      6. SurgeAcc    |    7. Throttle Pedal    |    8. Brake Pedal    |    9. Steering Wheel    |    10. Clutch Pedal   | 11. Steering Shaft Force | 12.Wheel Rotation | 
+	// 	Format telemetry data into a string buffer - May give "warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data" during compilation, however should only reach the size of 125 which is far below the max int size
+	sprintf(buffer, "%.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f\r\n", roll * radsToDeg,  pitch * radsToDeg, info.mLocalAccel.y, yaw * radsToDeg, - info.mLocalAccel.x, - info.mLocalAccel.z, info.mUnfilteredThrottle, info.mUnfilteredBrake, info.mUnfilteredSteering, info.mUnfilteredClutch, info.mSteeringShaftTorque,   info.mRotation);
+	//                                                      									|     1. Roll     |     2. Pitch      |    3. HeaveAcc    |      4. Yaw    |       5. SwayAcc    |      6. SurgeAcc    |    7. Throttle Pedal    |    8. Brake Pedal    |    9. Steering Wheel    |    10. Clutch Pedal   | 11. Steering Shaft Force | 12.Wheel Rotation | 
 
 	// Send telemetry data via UDP broadcast - Remind: Data is transmitted in ascii (Hex) 
 		// s: 							Socket descriptor for sending data
@@ -480,7 +482,7 @@ void UDPlugin::UpdateTelemetry(const TelemInfoV01 &info) {
 
 	// =====================================================================================================================
 	//	Writes the beginning of telemetry output to the output file
-	WriteToFiles( "a", "--Beginning Telemetry Output--");	
+	WriteToFiles( "a", "--Telemetry Output--");	
 	
 	//	Below records Telemetry data to Telemetry.txt file
 	//	Open or create a file named "Telemetry.txt" in append mode ("a")
@@ -488,15 +490,15 @@ void UDPlugin::UpdateTelemetry(const TelemInfoV01 &info) {
 	if	(TelemFile != NULL)
 	{
 		// Delta time is variable, as we send out the info once per frame
-		fprintf(TelemFile, "DT=%.4f  ET=%.4f\n", info.mDeltaTime, info.mElapsedTime);
-		fprintf(TelemFile, "Lap=%d StartET=%.3f\n", info.mLapNumber, info.mLapStartET);
+		fprintf(TelemFile, "DT=%.4f | ET=%.4f\n", info.mDeltaTime, info.mElapsedTime);
+		fprintf(TelemFile, "Lap=%d \n StartET=%20.f\n", info.mLapNumber, info.mLapStartET);
 		fprintf(TelemFile, "Vehicle=%s\n", info.mVehicleName);
 		fprintf(TelemFile, "Track=%s\n", info.mTrackName);
-		fprintf(TelemFile, "Pos=(%.3f,%.3f,%.3f)\n", info.mPos.x, info.mPos.y, info.mPos.z);
+		fprintf(TelemFile, "Pos = (%.3f, %.3f, %.3f)\n\n", info.mPos.x, info.mPos.y, info.mPos.z);
 
 	//	Forward is roughly in the -z direction (although current pitch of car may cause some y-direction velocity)
 		fprintf(TelemFile, "LocalVel=(%.2f,%.2f,%.2f)\n", info.mLocalVel.x, info.mLocalVel.y, info.mLocalVel.z);
-		fprintf(TelemFile, "LocalAccel=(%.1f,%.1f,%.1f)\n", info.mLocalAccel.x, info.mLocalAccel.y, 
+		fprintf(TelemFile, "LocalAccel=(%.1f,%.1f,%.1f)\n\n", info.mLocalAccel.x, info.mLocalAccel.y, 
 				info.mLocalAccel.z);
 
 		// Orientation matrix is left-handed
@@ -504,46 +506,46 @@ void UDPlugin::UpdateTelemetry(const TelemInfoV01 &info) {
 		fprintf(TelemFile, "[%6.3f,%6.3f,%6.3f]\n", info.mOri[1].x, info.mOri[1].y, info.mOri[1].z);
 		fprintf(TelemFile, "[%6.3f,%6.3f,%6.3f]\n", info.mOri[2].x, info.mOri[2].y, info.mOri[2].z);
 		fprintf(TelemFile, "LocalRot=(%.3f,%.3f,%.3f)\n", info.mLocalRot.x, info.mLocalRot.y, info.mLocalRot.z);
-		fprintf(TelemFile, "LocalRotAccel=(%.2f,%.2f,%.2f)\n", info.mLocalRotAccel.x, 
+		fprintf(TelemFile, "LocalRotAccel=(%.2f,%.2f,%.2f)\n\n", info.mLocalRotAccel.x, 
 				info.mLocalRotAccel.y, info.mLocalRotAccel.z);
 
 		// Vehicle status
 		fprintf(TelemFile, "Gear=%d RPM=%.1f RevLimit=%.1f\n", info.mGear, info.mEngineRPM, info.mEngineMaxRPM);
 		fprintf(TelemFile, "Water=%.1f Oil=%.1f\n", info.mEngineWaterTemp, info.mEngineOilTemp);
-		fprintf(TelemFile, "ClutchRPM=%.1f\n", info.mClutchRPM);
+		fprintf(TelemFile, "ClutchRPM=%.1f\n\n", info.mClutchRPM);
 
 		// Driver input
 		fprintf(TelemFile, "UnfilteredThrottle=%.1f%%\n", 100.0 * info.mUnfilteredThrottle);
 		fprintf(TelemFile, "UnfilteredBrake=%.1f%%\n", 100.0 * info.mUnfilteredBrake);
 		fprintf(TelemFile, "UnfilteredSteering=%.1f%%\n", 100.0 * info.mUnfilteredSteering);
-		fprintf(TelemFile, "UnfilteredClutch=%.1f%%\n", 100.0 * info.mUnfilteredClutch);
+		fprintf(TelemFile, "UnfilteredClutch=%.1f%%\n\n", 100.0 * info.mUnfilteredClutch);
 
 		// Filtered input
 		fprintf(TelemFile, "FilteredThrottle=%.1f%%\n", 100.0 * info.mFilteredThrottle);
 		fprintf(TelemFile, "FilteredBrake=%.1f%%\n", 100.0 * info.mFilteredBrake);
 		fprintf(TelemFile, "FilteredSteering=%.1f%%\n", 100.0 * info.mFilteredSteering);
-		fprintf(TelemFile, "FilteredClutch=%.1f%%\n", 100.0 * info.mFilteredClutch);
+		fprintf(TelemFile, "FilteredClutch=%.1f%%\n\n", 100.0 * info.mFilteredClutch);
 
 		// Misc
 		fprintf(TelemFile, "SteeringShaftTorque=%.1f\n", info.mSteeringShaftTorque);
-		fprintf(TelemFile, "Front3rdDeflection=%.3f Rear3rdDeflection=%.3f\n", 
+		fprintf(TelemFile, "Front3rdDeflection=%.3f Rear3rdDeflection=%.3f\n\n", 
 				info.mFront3rdDeflection, info.mRear3rdDeflection);
 
 		// Aerodynamics
 		fprintf(TelemFile, "FrontWingHeight=%.3f FrontRideHeight=%.3f RearRideHeight=%.3f\n", 
 				info.mFrontWingHeight, info.mFrontRideHeight, info.mRearRideHeight);
-		fprintf(TelemFile, "Drag=%.1f FrontDownforce=%.1f RearDownforce=%.1f\n", info.mDrag, info.mFrontDownforce,
+		fprintf(TelemFile, "Drag=%.1f FrontDownforce=%.1f RearDownforce=%.1f\n\n", info.mDrag, info.mFrontDownforce,
 				 info.mRearDownforce);
 
 		// Other
 		fprintf(TelemFile, "Fuel=%.1f ScheduledStops=%d Overheating=%d Detached=%d\n", info.mFuel, 
 				info.mScheduledStops, info.mOverheating, info.mDetached);
 
-		fprintf(TelemFile, "Dents=(%d,%d,%d,%d,%d,%d,%d,%d)\n", info.mDentSeverity[0], info.mDentSeverity[1], 
+		fprintf(TelemFile, "Dents=(%d,%d,%d,%d,%d,%d,%d,%d)\n\n", info.mDentSeverity[0], info.mDentSeverity[1], 
 				info.mDentSeverity[2], info.mDentSeverity[3], info.mDentSeverity[4], info.mDentSeverity[5], 
 				info.mDentSeverity[6], info.mDentSeverity[7]);
 
-		fprintf(TelemFile, "LastImpactET=%.1f Mag=%.1f, Pos=(%.1f,%.1f,%.1f)\n", info.mLastImpactET, 
+		fprintf(TelemFile, "LastImpactET=%.1f Mag=%.1f, Pos=(%.1f,%.1f,%.1f)\n\n", info.mLastImpactET, 
 				info.mLastImpactMagnitude,	info.mLastImpactPos.x, info.mLastImpactPos.y, info.mLastImpactPos.z );
 
 		// Wheels
@@ -578,7 +580,7 @@ void UDPlugin::UpdateTelemetry(const TelemInfoV01 &info) {
 			fprintf(TelemFile, " Wear=%.3f TerrainName=%s SurfaceType=%d\n", wheel.mWear, 
 					wheel.mTerrainName, wheel.mSurfaceType );
 					
-			fprintf(TelemFile, " Flat=%d Detached=%d\n", wheel.mFlat, wheel.mDetached );
+			fprintf(TelemFile, " Flat=%d Detached=%d\n\n", wheel.mFlat, wheel.mDetached );
 		}
 
 		// Compute some auxiliary info based on the above
@@ -619,7 +621,7 @@ void UDPlugin::UpdateTelemetry(const TelemInfoV01 &info) {
 		fclose( TelemFile );
 	}
 	
-	log("ending telemetry\n");  //  Records End of Telemetry Data Stream into Log
+	log("a", "ending telemetry\n");  //  Records End of Telemetry Data Stream into Log
 }
 //  Finished Code & Comments
 
@@ -633,7 +635,7 @@ void UDPlugin::UpdateTelemetry(const TelemInfoV01 &info) {
 ║  Parameters ║ TelemInfoV01 &info: Enables fetching of Telemetry Data                                      ║
 ╚═════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
 /*void UDPlugin::UpdateTelemetry(const TelemInfoV01 &info) {
-	log("starting telemetry\n"); // Records Telemetry start into Log
+	log("a", "starting telemetry\n"); // Records Telemetry start into Log
 
 	StartStream();
 	StreamData((char *)&type_telemetry, sizeof(char));
@@ -719,7 +721,7 @@ void UDPlugin::UpdateTelemetry(const TelemInfoV01 &info) {
 	}
 	EndStream();
 
-	log("ending telemetry\n");  //  Records End of Telemetry Data Stream into Log
+	log("a", "ending telemetry\n");  //  Records End of Telemetry Data Stream into Log
 }*/
 //	Alternative Telemetry Code - Kept for Posterity
 
@@ -733,7 +735,7 @@ void UDPlugin::UpdateTelemetry(const TelemInfoV01 &info) {
 ║  Parameters ║ ScoringInfoV01 &info: Enables extraction of Scoring Data 									║
 ╚═════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
 void UDPlugin::UpdateScoring(const ScoringInfoV01 &info) {
-	// //log("starting update");
+	// //log("a", "starting update");
 	// StartStream();
 	// StreamData((char *)&type_scoring, sizeof(char));
 
@@ -791,7 +793,7 @@ void UDPlugin::UpdateScoring(const ScoringInfoV01 &info) {
 	// }
 	// StreamVarString((char *)info.mResultsStream);
 	// EndStream();
-	// //log("ending update\n");
+	// //log("a", "ending update\n");
 }
 //	Alternative Scoring Code - Kept for Posterity
 
