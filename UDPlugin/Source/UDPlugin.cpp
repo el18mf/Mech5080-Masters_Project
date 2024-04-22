@@ -42,15 +42,6 @@
 ║			g++ -shared -o file.dll file.o -lWs2_32	//  Missing Library: Winsock library Manual link (UDP)	     ║
 ║                                                                                                                ║
 ║	- 	Compiling done using Visual Studio Express 2012 which is free via Visual Studio Dev Essentials service:  ║
-║	                                                                                                             ║
-║		1)	                                                                                                     ║
-║                                                                                                                ║
-║		2)	                                                                                                     ║
-║	                                                                                                             ║
-║		3)	                                                                                                     ║
-║	                                                                                                             ║
-║		4)	                                                                                                     ║
-║                                                   ╔═══════╗                                                    ║
 ╠═══════════════════════════════════════════════════╝ ASCII ╚════════════════════════════════════════════════════╣
 ║                                                                                                                ║
 ║                 ┌───────────┬─────────────┬───────────┬───────────┬─────────────┬───────────┐                  ║
