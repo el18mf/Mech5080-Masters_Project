@@ -172,6 +172,9 @@ struct TelemWheelV01
 
 struct TelemInfoV01
 {
+  //  Wheel Info brought over from TelemWheel
+  double mRotation;              // radians/sec
+
   // Time
   long mID;                      // slot ID (note that it can be re-used in multiplayer after someone leaves)
   double mDeltaTime;             // time since last update (seconds)
@@ -211,8 +214,8 @@ struct TelemInfoV01
   double mFilteredSteering;      // ranges -1.0-1.0 (left to right)
   double mFilteredClutch;        // ranges  0.0-1.0
 
-  // Misc
-  double mSteeringShaftTorque;   // torque around steering shaft (used to be mSteeringArmForce, but that is not necessarily accurate for feedback purposes)
+// Misc
+  double mSteeringShaftTorque;   // torque around steering shaft (used to be mSteeringArmForce, but that is not necessarily accurate for feedback purposes)  
   double mFront3rdDeflection;    // deflection at front 3rd spring
   double mRear3rdDeflection;     // deflection at rear 3rd spring
 
@@ -852,8 +855,8 @@ class InternalsPlugin : public PluginObject
   virtual void UpdateScoring( const ScoringInfoV01 &info ) {}   // update plugin with scoring info (approximately five times per second)
 
   // GAME OUTPUT
-  virtual long WantsTelemetryUpdates() { return( 0 ); }         // whether we want telemetry updates (0=no 1=player-only 2=all vehicles)
-  virtual void UpdateTelemetry( const TelemInfoV01 &info ) {}   // update plugin with telemetry info
+  virtual long WantsTelemetryUpdates() { return(1); }           // whether we want telemetry updates (0=no 1=player-only 2=all vehicles)
+  virtual void UpdateTelemetry( const TelemInfoV01 &info) {}    // update plugin with telemetry info
 
   virtual bool WantsGraphicsUpdates() { return( false ); }      // whether we want graphics updates
   virtual void UpdateGraphics( const GraphicsInfoV01 &info ) {} // update plugin with graphics info

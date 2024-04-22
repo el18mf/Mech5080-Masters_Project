@@ -81,23 +81,22 @@
 
 /*______________________________________________________________________________________________________________
 ════════════════════════════════════════════ Libraries & Definitions ════════════════════════════════════════════*/
-#include <WinSock2.h>			// required library for UDP connection
+//	Include necessary header files for UDP connection, Windows API, and standard libraries
+#include <WinSock2.h>           // required library for UDP connection
 #include <Windows.h>
+#include "UDPlugin.hpp"         // corresponding header file
+#include <math.h>               // for mathematical functions like atan2, sqrt
+#include <stdio.h>              // for standard input/output operations
+#include <assert.h>             // for assertion macros
+#include <io.h>                 // for low-level I/O functions
+#include <sys/stat.h>           // for file status functions
+#include <string.h>             // for string manipulation functions
+#include <sys/types.h>          // for data types used in system calls
+#include <time.h>               // for time-related functions, such as getting current time
 
-#include "UDPlugin.hpp"			// corresponding header file
-#include <math.h>               // for atan2, sqrt
-#include <stdio.h>				// for sample output
-#include <assert.h>
-#include <io.h>
-#include <sys/stat.h>        
-#include <string.h>
-#include <sys/types.h>
-#include <time.h>				//  To get time for log & Output Files
+#include <WS2tcpip.h>           // additional library for TCP/IP functionality
 
-#include <WS2tcpip.h>
-
-#define TIME_LENGTH 26
-
+#define TIME_LENGTH 26          // Define the length of the time string
 //	UDPlugin::UDPlugin(){}
 //	UDPlugin::~UDPlugin(){}
 
@@ -410,6 +409,21 @@ void UDPlugin::UpdateTelemetry(const TelemInfoV01 &info) {
 	// Get the size of the broadcast address structure
 	int len = sizeof(sad);
 
+	// Our world coordinate system is left-handed, with +y pointing up.
+	// The local vehicle coordinate system is as follows:
+	//   +x points out the left side of the car (from the driver's perspective)
+	//   +y points out the roof
+	//   +z points out the back of the car
+	// Rotations are as follows:
+	//   +x pitches up
+	//   +y yaws to the right
+	//   +z rolls to the right
+	// Note that ISO vehicle coordinates (+x forward, +y right, +z upward) are
+	// right-handed.  If you are using that system, be sure to negate any rotation
+	// or torque data because things rotate in the opposite direction.  In other
+	// words, a -z velocity in rFactor is a +x velocity in ISO, but a -z rotation
+	// in rFactor is a -x rotation in ISO!!!
+
 	// Compute auxiliary vectors based on the telemetry orientation data
 	TelemVect3 forwardVector = { -info.mOri[0].z, -info.mOri[1].z, -info.mOri[2].z };
 	TelemVect3 upVector = {  info.mOri[0].y,  info.mOri[1].y,  info.mOri[2].y };
@@ -422,16 +436,38 @@ void UDPlugin::UpdateTelemetry(const TelemInfoV01 &info) {
 	const double yaw = atan2(info.mOri[0].z, info.mOri[2].z);
 	const double roll = atan2(leftVector.y, sqrt((leftVector.x * leftVector.x) + (leftVector.z * leftVector.z)));
 	const double radsToDeg = 57.296;	// Radians to Degree conversion 
+	
+	/*	Final Data points to output - Remember to prefix info. when adding to the sprintf: 
+	Albert
+		// Driver input
+		double mUnfilteredThrottle;    	// 	ranges  0.0-1.0 (accelerator pedal)
+		double mUnfilteredBrake;       	// 	ranges  0.0-1.0	(brake pedal)
+		double mUnfilteredSteering;    	// 	ranges -1.0-1.0 (left to right - Steering Wheel)
+		double mUnfilteredClutch;      	// 	ranges  0.0-1.0	(clutch pedal)
+		mUnfilteredBrake mUnfilteredSteering mUnfilteredClutch
+		// Misc
+  		double mSteeringShaftTorque;   	// 	torque around steering shaft
+		double mRotation;              // radians/sec (Wheel Turning Angles??)
 
-	// Format telemetry data into a string buffer
-	// sprintf(buffer, "0, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, 0, 0, 0, %ld, %ld, %.3f, %.3f, 0, %.3f, %.3f, 0, %.3f, 0, 0\r\n", info.mLocalRotAccel.z, - info.mLocalRotAccel.x, info.mLocalRotAccel.y, yaw, pitch, roll, - info.mLocalAccel.z, - info.mLocalAccel.x, info.mLocalAccel.y, - info.mLocalVel.z, - info.mLocalVel.x, info.mLocalVel.y, - info.mPos.z, - info.mPos.x, info.mPos.y, info.mGear, info.mID, - info.mLocalVel.z, info.mEngineRPM, info.mEngineWaterTemp, info.mFuel, info.mEngineOilTemp);
-	// //                                                                                                                                                                              RotAccZ,               RotAccX,                 RotAccY,               yaw, pitch, roll, SurgeAcc,             SwayAcc,              HeaveAcc,           forward velocity,   right velocity,     up velocity,                                                 currentgear,playerID, speed,              engineRPM,       engine temp,           fuel,       oil temp
-	
-	//sprintf(buffer, "%.3f, %.3f, %.3f, %.3f, %.3f, %.3f\r\n", roll * radsToDeg,  pitch * radsToDeg, info.mLocalAccel.y, yaw * radsToDeg, - info.mLocalAccel.x, - info.mLocalAccel.z);
-	//                                                          Roll,               Pitch,              HeaveAcc,           Yaw,                SwayAcc,            SurgeAcc
-	
-	//	Test for Actuation - Only Roll (Singlue Data Output)
-	sprintf(buffer, "%.3f\r\n", roll * radsToDeg);
+	Alex & Albert
+		//	Pitch - Remember to multiply by radsToDeg to change from radians to degree output
+		const double pitch = atan2(forwardVector.y, sqrt((forwardVector.x * forwardVector.x) + (forwardVector.z * forwardVector.z)));
+
+		//	Yaw - Remember to multiply by radsToDeg to change from radians to degree output
+		const double yaw = atan2(info.mOri[0].z, info.mOri[2].z);
+
+		//	Roll - Remember to multiply by radsToDeg to change from radians to degree output
+		const double roll = atan2(leftVector.y, sqrt((leftVector.x * leftVector.x) + (leftVector.z * leftVector.z)));
+		
+		TelemVect3 mLocalAccel;			// acceleration (meters/sec^2) in local vehicle coordinates
+		mLocalAccel.y;					//	Heave acceleration - Refers to vertical acceleration, usually along the z-axis.
+		- mLocalAccel.x;				//	Sway acceleration  - Associated with lateral movement, typically along the y-axis.
+		- mLocalAccel.z;				//	Surge acceleration - Relates to longitudinal movement, generally along the x-axis.
+
+	*/
+	// 	Format telemetry data into a string buffer
+	sprintf(buffer, "%.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f\r\n", roll * radsToDeg,  pitch * radsToDeg, info.mLocalAccel.y, yaw * radsToDeg, - info.mLocalAccel.x, - info.mLocalAccel.z, info.mUnfilteredThrottle, info.mUnfilteredBrake, info.mUnfilteredSteering, info.mUnfilteredClutch, info.mSteeringShaftTorque,   info.mRotation);
+	//                                                      										  |     1. Roll     |     2. Pitch      |    3. HeaveAcc    |      4. Yaw    |       5. SwayAcc    |      6. SurgeAcc    |    7. Throttle Pedal    |    8. Brake Pedal    |    9. Steering Wheel    |    10. Clutch Pedal   | 11. Steering Shaft Force | 12.Wheel Rotation | 
 
 	// Send telemetry data via UDP broadcast - Remind: Data is transmitted in ascii (Hex) 
 		// s: 							Socket descriptor for sending data
@@ -807,7 +843,7 @@ void UDPlugin::StartStream() {
 	//	Set data offset for further data population
 	data_offset = 4;	//	Offset for subsequent data writing
 }
-//  Finished Code & Comments - Data Streaming for Alternative UDP method
+//  Finished Code & Comments - Data Streaming for Alternative Data streaming method
 
 
 /*______________________________________________________________________________________________________________
@@ -846,7 +882,7 @@ void UDPlugin::StreamData(char *data_ptr, int length) {
 	}
 	data_offset = data_offset + length;			// Update data_offset for the next data population
 }
-//  Finished Code & Comments - For Data Streaming for Alternative UDP method
+//  Finished Code & Comments - Data Streaming for Alternative Data streaming method
 
 
 /*______________________________________________________________________________________________________________
@@ -866,7 +902,7 @@ void UDPlugin::StreamVarString(char *data_ptr) {
 	StreamData((char *)&i, sizeof(int));	// Stream the length of the string
 	StreamString(data_ptr, i);				// Stream the string data
 }
-//  Finished Code & Comments - Data Streaming for Alternative UDP method
+//  Finished Code & Comments - Data Streaming for Alternative Data streaming method
 
 
 /*______________________________________________________________________________________________________________
@@ -909,7 +945,7 @@ void UDPlugin::StreamString(char *data_ptr, int length) {
 	}
 	data_offset = data_offset + length;	//	Update data_offset for the next data population
 }
-//  Finished Code & Comments - Data Streaming for Alternative UDP method
+//  Finished Code & Comments - Data Streaming for Alternative Data streaming method
 
 
 /*______________________________________________________________________________________________________________
@@ -925,7 +961,7 @@ void UDPlugin::EndStream() {
 		sendto(s, data, data_offset, 0, (struct sockaddr *) &sad, sizeof(struct sockaddr));
 	}
 }
-//  Finished Code & Comments - Data Streaming for Alternative UDP method
+//  Finished Code & Comments - Data Streaming for Alternative Data streaming method
 
 //______________________________________________________________________________________________________________
 //═══════════════════════════════════════════ Extra Features ═══════════════════════════════════════════════════
