@@ -94,6 +94,8 @@
 //	UDPlugin::UDPlugin(){}
 //	UDPlugin::~UDPlugin(){}
 
+
+
 /*______________________________________________________________________________________________________________
 ══════════════════════════════════════════════ Plugin Information ══════════════════════════════════════════════*/
 
@@ -481,136 +483,140 @@ void UDPlugin::UpdateTelemetry(const TelemInfoV01 &info) {
 	FILE *TelemFile = fopen("Telemetry.txt", "a");	
 	if	(TelemFile != NULL)
 	{
-		// Delta time is variable, as we send out the info once per frame
-		fprintf(TelemFile, "DT=%.4f | ET=%.4f\n", info.mDeltaTime, info.mElapsedTime);
-		fprintf(TelemFile, "Lap=%d \n StartET=%20.f\n", info.mLapNumber, info.mLapStartET);
-		fprintf(TelemFile, "Vehicle=%s\n", info.mVehicleName);
-		fprintf(TelemFile, "Track=%s\n", info.mTrackName);
-		fprintf(TelemFile, "Pos = (%.3f, %.3f, %.3f)\n\n", info.mPos.x, info.mPos.y, info.mPos.z);
+		for (int i = 0; i < 10; i++) {
+			// Delta time is variable, as we send out the info once per frame
+			fprintf(TelemFile, "DT=%.4f | ET=%.4f\n", info.mDeltaTime, info.mElapsedTime);
+			fprintf(TelemFile, "Lap=%d \n StartET=%20.f\n", info.mLapNumber, info.mLapStartET);
+			fprintf(TelemFile, "Vehicle=%s\n", info.mVehicleName);
+			fprintf(TelemFile, "Track=%s\n", info.mTrackName);
+			fprintf(TelemFile, "Pos = (%.3f, %.3f, %.3f)\n\n", info.mPos.x, info.mPos.y, info.mPos.z);
 
-	//	Forward is roughly in the -z direction (although current pitch of car may cause some y-direction velocity)
-		fprintf(TelemFile, "LocalVel=(%.2f,%.2f,%.2f)\n", info.mLocalVel.x, info.mLocalVel.y, info.mLocalVel.z);
-		fprintf(TelemFile, "LocalAccel=(%.1f,%.1f,%.1f)\n\n", info.mLocalAccel.x, info.mLocalAccel.y, 
-				info.mLocalAccel.z);
+		//	Forward is roughly in the -z direction (although current pitch of car may cause some y-direction velocity)
+			fprintf(TelemFile, "LocalVel=(%.2f,%.2f,%.2f)\n", info.mLocalVel.x, info.mLocalVel.y, info.mLocalVel.z);
+			fprintf(TelemFile, "LocalAccel=(%.1f,%.1f,%.1f)\n\n", info.mLocalAccel.x, info.mLocalAccel.y, 
+					info.mLocalAccel.z);
 
-		// Orientation matrix is left-handed
-		fprintf(TelemFile, "[%6.3f,%6.3f,%6.3f]\n", info.mOri[0].x, info.mOri[0].y, info.mOri[0].z);
-		fprintf(TelemFile, "[%6.3f,%6.3f,%6.3f]\n", info.mOri[1].x, info.mOri[1].y, info.mOri[1].z);
-		fprintf(TelemFile, "[%6.3f,%6.3f,%6.3f]\n", info.mOri[2].x, info.mOri[2].y, info.mOri[2].z);
-		fprintf(TelemFile, "LocalRot=(%.3f,%.3f,%.3f)\n", info.mLocalRot.x, info.mLocalRot.y, info.mLocalRot.z);
-		fprintf(TelemFile, "LocalRotAccel=(%.2f,%.2f,%.2f)\n\n", info.mLocalRotAccel.x, 
-				info.mLocalRotAccel.y, info.mLocalRotAccel.z);
+			// Orientation matrix is left-handed
+			fprintf(TelemFile, "[%6.3f,%6.3f,%6.3f]\n", info.mOri[0].x, info.mOri[0].y, info.mOri[0].z);
+			fprintf(TelemFile, "[%6.3f,%6.3f,%6.3f]\n", info.mOri[1].x, info.mOri[1].y, info.mOri[1].z);
+			fprintf(TelemFile, "[%6.3f,%6.3f,%6.3f]\n", info.mOri[2].x, info.mOri[2].y, info.mOri[2].z);
+			fprintf(TelemFile, "LocalRot=(%.3f,%.3f,%.3f)\n", info.mLocalRot.x, info.mLocalRot.y, info.mLocalRot.z);
+			fprintf(TelemFile, "LocalRotAccel=(%.2f,%.2f,%.2f)\n\n", info.mLocalRotAccel.x, 
+					info.mLocalRotAccel.y, info.mLocalRotAccel.z);
 
-		// Vehicle status
-		fprintf(TelemFile, "Gear=%d RPM=%.1f RevLimit=%.1f\n", info.mGear, info.mEngineRPM, info.mEngineMaxRPM);
-		fprintf(TelemFile, "Water=%.1f Oil=%.1f\n", info.mEngineWaterTemp, info.mEngineOilTemp);
-		fprintf(TelemFile, "ClutchRPM=%.1f\n\n", info.mClutchRPM);
+			// Vehicle status
+			fprintf(TelemFile, "Gear=%d RPM=%.1f RevLimit=%.1f\n", info.mGear, info.mEngineRPM, info.mEngineMaxRPM);
+			fprintf(TelemFile, "Water=%.1f Oil=%.1f\n", info.mEngineWaterTemp, info.mEngineOilTemp);
+			fprintf(TelemFile, "ClutchRPM=%.1f\n\n", info.mClutchRPM);
 
-		// Driver input
-		fprintf(TelemFile, "UnfilteredThrottle=%.1f%%\n", 100.0 * info.mUnfilteredThrottle);
-		fprintf(TelemFile, "UnfilteredBrake=%.1f%%\n", 100.0 * info.mUnfilteredBrake);
-		fprintf(TelemFile, "UnfilteredSteering=%.1f%%\n", 100.0 * info.mUnfilteredSteering);
-		fprintf(TelemFile, "UnfilteredClutch=%.1f%%\n\n", 100.0 * info.mUnfilteredClutch);
+			// Driver input
+			fprintf(TelemFile, "UnfilteredThrottle=%.1f%%\n", 100.0 * info.mUnfilteredThrottle);
+			fprintf(TelemFile, "UnfilteredBrake=%.1f%%\n", 100.0 * info.mUnfilteredBrake);
+			fprintf(TelemFile, "UnfilteredSteering=%.1f%%\n", 100.0 * info.mUnfilteredSteering);
+			fprintf(TelemFile, "UnfilteredClutch=%.1f%%\n\n", 100.0 * info.mUnfilteredClutch);
 
-		// Filtered input
-		fprintf(TelemFile, "FilteredThrottle=%.1f%%\n", 100.0 * info.mFilteredThrottle);
-		fprintf(TelemFile, "FilteredBrake=%.1f%%\n", 100.0 * info.mFilteredBrake);
-		fprintf(TelemFile, "FilteredSteering=%.1f%%\n", 100.0 * info.mFilteredSteering);
-		fprintf(TelemFile, "FilteredClutch=%.1f%%\n\n", 100.0 * info.mFilteredClutch);
+			// Filtered input
+			fprintf(TelemFile, "FilteredThrottle=%.1f%%\n", 100.0 * info.mFilteredThrottle);
+			fprintf(TelemFile, "FilteredBrake=%.1f%%\n", 100.0 * info.mFilteredBrake);
+			fprintf(TelemFile, "FilteredSteering=%.1f%%\n", 100.0 * info.mFilteredSteering);
+			fprintf(TelemFile, "FilteredClutch=%.1f%%\n\n", 100.0 * info.mFilteredClutch);
 
-		// Misc
-		fprintf(TelemFile, "SteeringShaftTorque=%.1f\n", info.mSteeringShaftTorque);
-		fprintf(TelemFile, "Front3rdDeflection=%.3f Rear3rdDeflection=%.3f\n\n", 
-				info.mFront3rdDeflection, info.mRear3rdDeflection);
+			// Misc
+			fprintf(TelemFile, "SteeringShaftTorque=%.1f\n", info.mSteeringShaftTorque);
+			fprintf(TelemFile, "Front3rdDeflection=%.3f Rear3rdDeflection=%.3f\n\n", 
+					info.mFront3rdDeflection, info.mRear3rdDeflection);
 
-		// Aerodynamics
-		fprintf(TelemFile, "FrontWingHeight=%.3f FrontRideHeight=%.3f RearRideHeight=%.3f\n", 
-				info.mFrontWingHeight, info.mFrontRideHeight, info.mRearRideHeight);
-		fprintf(TelemFile, "Drag=%.1f FrontDownforce=%.1f RearDownforce=%.1f\n\n", info.mDrag, info.mFrontDownforce,
-				 info.mRearDownforce);
+			// Aerodynamics
+			fprintf(TelemFile, "FrontWingHeight=%.3f FrontRideHeight=%.3f RearRideHeight=%.3f\n", 
+					info.mFrontWingHeight, info.mFrontRideHeight, info.mRearRideHeight);
+			fprintf(TelemFile, "Drag=%.1f FrontDownforce=%.1f RearDownforce=%.1f\n\n", info.mDrag, info.mFrontDownforce,
+					info.mRearDownforce);
 
-		// Other
-		fprintf(TelemFile, "Fuel=%.1f ScheduledStops=%d Overheating=%d Detached=%d\n", info.mFuel, 
-				info.mScheduledStops, info.mOverheating, info.mDetached);
+			// Other
+			fprintf(TelemFile, "Fuel=%.1f ScheduledStops=%d Overheating=%d Detached=%d\n", info.mFuel, 
+					info.mScheduledStops, info.mOverheating, info.mDetached);
 
-		fprintf(TelemFile, "Dents=(%d,%d,%d,%d,%d,%d,%d,%d)\n\n", info.mDentSeverity[0], info.mDentSeverity[1], 
-				info.mDentSeverity[2], info.mDentSeverity[3], info.mDentSeverity[4], info.mDentSeverity[5], 
-				info.mDentSeverity[6], info.mDentSeverity[7]);
+			fprintf(TelemFile, "Dents=(%d,%d,%d,%d,%d,%d,%d,%d)\n\n", info.mDentSeverity[0], info.mDentSeverity[1], 
+					info.mDentSeverity[2], info.mDentSeverity[3], info.mDentSeverity[4], info.mDentSeverity[5], 
+					info.mDentSeverity[6], info.mDentSeverity[7]);
 
-		fprintf(TelemFile, "LastImpactET=%.1f Mag=%.1f, Pos=(%.1f,%.1f,%.1f)\n\n", info.mLastImpactET, 
-				info.mLastImpactMagnitude,	info.mLastImpactPos.x, info.mLastImpactPos.y, info.mLastImpactPos.z );
+			fprintf(TelemFile, "LastImpactET=%.1f Mag=%.1f, Pos=(%.1f,%.1f,%.1f)\n\n", info.mLastImpactET, 
+					info.mLastImpactMagnitude,	info.mLastImpactPos.x, info.mLastImpactPos.y, info.mLastImpactPos.z );
 
-		// Wheels
-		for( long i = 0; i < 4; ++i )
-		{
-			const TelemWheelV01 &wheel = info.mWheel[i];
-			fprintf(TelemFile, "Wheel=%s\n", (i==0)?"FrontLeft":(i==1)?"FrontRight":(i==2)?"RearLeft":"RearRight");
+			// Wheels
+			for( long i = 0; i < 4; ++i )
+			{
+				const TelemWheelV01 &wheel = info.mWheel[i];
+				fprintf(TelemFile, "Wheel=%s\n", (i==0)?"FrontLeft":(i==1)?"FrontRight":(i==2)?"RearLeft":"RearRight");
 
-			fprintf(TelemFile, " SuspensionDeflection=%.3f RideHeight=%.3f\n", wheel.mSuspensionDeflection, 
-					wheel.mRideHeight );
+				fprintf(TelemFile, " SuspensionDeflection=%.3f RideHeight=%.3f\n", wheel.mSuspensionDeflection, 
+						wheel.mRideHeight );
 
-			fprintf(TelemFile, " SuspForce=%.1f BrakeTemp=%.1f BrakePressure=%.3f\n", wheel.mSuspForce, 
-					wheel.mBrakeTemp, wheel.mBrakePressure );
+				fprintf(TelemFile, " SuspForce=%.1f BrakeTemp=%.1f BrakePressure=%.3f\n", wheel.mSuspForce, 
+						wheel.mBrakeTemp, wheel.mBrakePressure );
 
-			fprintf(TelemFile, " TelemFilerwardRotation=%.1f Camber=%.3f\n", -wheel.mRotation, wheel.mCamber );
+				fprintf(TelemFile, " TelemFilerwardRotation=%.1f Camber=%.3f\n", -wheel.mRotation, wheel.mCamber );
 
-			fprintf(TelemFile, " LateralPatchVel=%.2f LongitudinalPatchVel=%.2f\n", wheel.mLateralPatchVel, 
-					wheel.mLongitudinalPatchVel );
+				fprintf(TelemFile, " LateralPatchVel=%.2f LongitudinalPatchVel=%.2f\n", wheel.mLateralPatchVel, 
+						wheel.mLongitudinalPatchVel );
 
-			fprintf(TelemFile, " LateralGroundVel=%.2f LongitudinalGroundVel=%.2f\n", wheel.mLateralGroundVel, 
-					wheel.mLongitudinalGroundVel );
+				fprintf(TelemFile, " LateralGroundVel=%.2f LongitudinalGroundVel=%.2f\n", wheel.mLateralGroundVel, 
+						wheel.mLongitudinalGroundVel );
 
-			fprintf(TelemFile, " LateralForce=%.1f LongitudinalForce=%.1f\n", wheel.mLateralForce, 
-					wheel.mLongitudinalForce );
+				fprintf(TelemFile, " LateralForce=%.1f LongitudinalForce=%.1f\n", wheel.mLateralForce, 
+						wheel.mLongitudinalForce );
 
-			fprintf(TelemFile, " TireLoad=%.1f GripFract=%.3f TirePressure=%.1f\n", wheel.mTireLoad, 
-					wheel.mGripFract, wheel.mPressure );
+				fprintf(TelemFile, " TireLoad=%.1f GripFract=%.3f TirePressure=%.1f\n", wheel.mTireLoad, 
+						wheel.mGripFract, wheel.mPressure );
 
-			fprintf(TelemFile, " TireTemp(l/c/r)=%.1f/%.1f/%.1f\n", wheel.mTemperature[0], 
-					wheel.mTemperature[1], wheel.mTemperature[2] );
+				fprintf(TelemFile, " TireTemp(l/c/r)=%.1f/%.1f/%.1f\n", wheel.mTemperature[0], 
+						wheel.mTemperature[1], wheel.mTemperature[2] );
 
-			fprintf(TelemFile, " Wear=%.3f TerrainName=%s SurfaceType=%d\n", wheel.mWear, 
-					wheel.mTerrainName, wheel.mSurfaceType );
-					
-			fprintf(TelemFile, " Flat=%d Detached=%d\n\n", wheel.mFlat, wheel.mDetached );
-		}
-
-		// Compute some auxiliary info based on the above
-		TelemVect3 forwardVector = { -info.mOri[0].z, -info.mOri[1].z, -info.mOri[2].z };
-		TelemVect3    leftVector = {  info.mOri[0].x,  info.mOri[1].x,  info.mOri[2].x };
-
-		// These are normalized vectors, and remember that our world Y coordinate is up.  So you can
-		// determine the current pitch and roll (w.r.t. the world x-z plane) as follows:
-		const double pitch = atan2(forwardVector.y, sqrt((forwardVector.x * forwardVector.x) +
-									(forwardVector.z * forwardVector.z)));
-
-		const double  roll = atan2(leftVector.y, sqrt((leftVector.x * leftVector.x) + 
-									(leftVector.z * leftVector.z)));
-
-		const double radsToDeg = 57.296;
-		fprintf(TelemFile, "Pitch = %.1f deg, Roll = %.1f deg\n", pitch * radsToDeg, roll * radsToDeg);
-
-		const double metersPerSec = sqrt( ( info.mLocalVel.x * info.mLocalVel.x ) +
-										( info.mLocalVel.y * info.mLocalVel.y ) +
-										( info.mLocalVel.z * info.mLocalVel.z ) );
-		fprintf(TelemFile, "Speed = %.1f KPH, %.1f MPH\n\n", metersPerSec * 3.6, metersPerSec * 2.237 );
-
-		if (info.mElectricBoostMotorState != 0)
-		{
-			fprintf( TelemFile, "ElectricBoostMotor:");
-			char const* const states[] = {"N/A", "Inactive", "Propulsion", "Regeneration"};
-			fprintf( TelemFile, " State = %s\n", states[info.mElectricBoostMotorState]);
-			fprintf( TelemFile, " Torque = %g nm\n", info.mElectricBoostMotorTorque);
-			fprintf( TelemFile, " RPM = %g\n", info.mElectricBoostMotorRPM);
-			fprintf( TelemFile, " Motor Temperature = %g C\n", info.mElectricBoostMotorTemperature);
-
-			if (info.mElectricBoostMotorTemperature != 0) {
-				fprintf( TelemFile, " Water Temperature = %g C\n", info.mElectricBoostWaterTemperature);
+				fprintf(TelemFile, " Wear=%.3f TerrainName=%s SurfaceType=%d\n", wheel.mWear, 
+						wheel.mTerrainName, wheel.mSurfaceType );
+						
+				fprintf(TelemFile, " Flat=%d Detached=%d\n\n", wheel.mFlat, wheel.mDetached );
 			}
-		}
 
-		// Close file
-		fclose( TelemFile );
+			// Compute some auxiliary info based on the above
+			TelemVect3 forwardVector = { -info.mOri[0].z, -info.mOri[1].z, -info.mOri[2].z };
+			TelemVect3    leftVector = {  info.mOri[0].x,  info.mOri[1].x,  info.mOri[2].x };
+
+			// These are normalized vectors, and remember that our world Y coordinate is up.  So you can
+			// determine the current pitch and roll (w.r.t. the world x-z plane) as follows:
+			const double pitch = atan2(forwardVector.y, sqrt((forwardVector.x * forwardVector.x) +
+										(forwardVector.z * forwardVector.z)));
+
+			const double  roll = atan2(leftVector.y, sqrt((leftVector.x * leftVector.x) + 
+										(leftVector.z * leftVector.z)));
+
+			const double radsToDeg = 57.296;
+			fprintf(TelemFile, "Pitch = %.1f deg, Roll = %.1f deg\n", pitch * radsToDeg, roll * radsToDeg);
+
+			const double metersPerSec = sqrt( ( info.mLocalVel.x * info.mLocalVel.x ) +
+											( info.mLocalVel.y * info.mLocalVel.y ) +
+											( info.mLocalVel.z * info.mLocalVel.z ) );
+			fprintf(TelemFile, "Speed = %.1f KPH, %.1f MPH\n\n", metersPerSec * 3.6, metersPerSec * 2.237 );
+
+			if (info.mElectricBoostMotorState != 0)
+			{
+				fprintf( TelemFile, "ElectricBoostMotor:");
+				char const* const states[] = {"N/A", "Inactive", "Propulsion", "Regeneration"};
+				fprintf( TelemFile, " State = %s\n", states[info.mElectricBoostMotorState]);
+				fprintf( TelemFile, " Torque = %g nm\n", info.mElectricBoostMotorTorque);
+				fprintf( TelemFile, " RPM = %g\n", info.mElectricBoostMotorRPM);
+				fprintf( TelemFile, " Motor Temperature = %g C\n", info.mElectricBoostMotorTemperature);
+
+				if (info.mElectricBoostMotorTemperature != 0) {
+					fprintf( TelemFile, " Water Temperature = %g C\n", info.mElectricBoostWaterTemperature);
+				}
+			}
+
+			ForceFeedback;
+
+			// Close file
+			fclose( TelemFile );
+		}
 	}
 	
 	log("a", "ending telemetry\n");  //  Records End of Telemetry Data Stream into Log
@@ -970,37 +976,37 @@ void UDPlugin::EndStream() {
 ╚═════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
 bool UDPlugin::CheckHWControl( const char * const controlName, double &fRetVal ) {
 	
-	// only if enabled, of course
-	if( !mEnabled ) 
-		return( false );
+	// // only if enabled, of course
+	// if( !mEnabled ) 
+	// 	return( false );
 
-	// Note that incoming value is the game's computation, in case you're interested.
+	// // Note that incoming value is the game's computation, in case you're interested.
 
-	// No control allowed over actual vehicle inputs - Due to cheating possibility
-	// However, you can still look at the values.
+	// // No control allowed over actual vehicle inputs - Due to cheating possibility
+	// // However, you can still look at the values.
 
-	// Note: since the game calls this function every frame for every available control, you might consider
-	// doing a binary search if you are checking more than 7 or 8 strings, just to keep the speed up.
-	if( _stricmp( controlName, "LookLeft" ) == 0 )
-	{
-		const double headSwitcheroo = fmod( mET, 2.0 );
-		if( headSwitcheroo < 0.5 )
-			fRetVal = 1.0;
-		else
-			fRetVal = 0.0;
-		return( true );
-	}
-	else if( _stricmp( controlName, "LookRight" ) == 0 )
-	{
-		const double headSwitcheroo = fmod( mET, 2.0 );
-		if((headSwitcheroo > 1.0) && (headSwitcheroo < 1.5 )) {
-			fRetVal = 1.0;
-		} 
-		else {
-			fRetVal = 0.0;
-		return( true );
-		}
-	}
+	// // Note: since the game calls this function every frame for every available control, you might consider
+	// // doing a binary search if you are checking more than 7 or 8 strings, just to keep the speed up.
+	// if( _stricmp( controlName, "LookLeft" ) == 0 )
+	// {
+	// 	const double headSwitcheroo = fmod( mET, 2.0 );
+	// 	if( headSwitcheroo < 0.5 )
+	// 		fRetVal = 1.0;
+	// 	else
+	// 		fRetVal = 0.0;
+	// 	return( true );
+	// }
+	// else if( _stricmp( controlName, "LookRight" ) == 0 )
+	// {
+	// 	const double headSwitcheroo = fmod( mET, 2.0 );
+	// 	if((headSwitcheroo > 1.0) && (headSwitcheroo < 1.5 )) {
+	// 		fRetVal = 1.0;
+	// 	} 
+	// 	else {
+	// 		fRetVal = 0.0;
+	// 	return( true );
+	// 	}
+	// }
 
 	return( false );
 }
@@ -1016,12 +1022,32 @@ bool UDPlugin::CheckHWControl( const char * const controlName, double &fRetVal )
 ╚══════════════╩═════════════════════════════════════════════════════════════════════════════════════════════╝*/
 bool UDPlugin::ForceFeedback( double &forceValue )
   {
-    // CHANGE COMMENTS TO ENABLE FORCE EXAMPLE
-    return( false );
+    // // CHANGE COMMENTS TO ENABLE FORCE EXAMPLE
+    // return( false );
 
-	//	I think the bounds are -11500 to 11500 ...
-	//	forceValue = 11500.0 * sinf( mET );
-	//	return( true );
+	// bounds are -11500 to 11500 ...
+	// forceValue = 11500.0 * sinf( mET );
+	
+
+	WriteToFiles( "a", "--FFB Output--\n");	
+	
+	//	Below records Telemetry data to Telemetry.txt file
+	//	Open or create a file named "Telemetry.txt" in append mode ("a")
+	FILE *TelemFile = fopen("Telemetry.txt", "a");	
+	if	(TelemFile != NULL)
+	{
+
+
+			fprintf(TelemFile, "Force Feed Back = %s \n", forceValue);
+			// Close file
+		
+		
+		fclose(TelemFile);
+	}
+	
+	
+
+	return( false );
   }
 //  Finished Code & Comments
 
